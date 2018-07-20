@@ -7,5 +7,5 @@ package com.video.cut.interfaces;
  * Describe:
  */
 public interface SingleCallback<T,V> {
-    void onSingleCallback(T t,V v);
+    void onSingleCallback(T t, V v);
 }

@@ -3,6 +3,7 @@ package com.video.cut.widget;
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+
 public class SpacesItemDecoration extends RecyclerView.ItemDecoration{
 
   private int halfSpace;

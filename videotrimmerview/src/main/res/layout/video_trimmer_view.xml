@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black"
+    android:background="#1f1f27"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -21,6 +21,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true" />
+
+
+            <ProgressBar
+                android:visibility="gone"
+                android:id="@+id/video_loading"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_centerInParent="true"
+                android:indeterminateDrawable="@drawable/dialog_loading"
+                />
         </LinearLayout>
 
 
@@ -32,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="45dp"
         android:layout_weight="1"
-        android:background="@android:color/black"
+        android:background="#1f1f27"
         android:gravity="center_vertical">
 
         <TextView
@@ -83,7 +93,7 @@
                     android:layout_width="35dp"
                     android:layout_height="50dp"
                     android:layout_gravity="bottom"
-                    android:background="@color/shadow_color" />
+                    android:background="@color/shadow_translucent" />
 
                 <LinearLayout
                     android:id="@+id/seekBarLayout"
@@ -98,7 +108,7 @@
                     android:layout_width="35dp"
                     android:layout_height="match_parent"
                     android:layout_gravity="bottom"
-                    android:background="@color/shadow_color" />
+                    android:background="#1f1f27" />
             </LinearLayout>
         </FrameLayout>
 
@@ -140,8 +150,6 @@
                 android:text="完成"
                 android:textColor="@android:color/holo_green_dark"
                 android:textSize="16dp" />
-
         </FrameLayout>
-
     </RelativeLayout>
 </LinearLayout>

@@ -26,6 +26,14 @@ public class VideoTrimmerAdapter extends RecyclerView.Adapter {
     this.mInflater = LayoutInflater.from(context);
   }
 
+  public List<Bitmap> getmBitmaps() {
+    return mBitmaps;
+  }
+
+  public void setmBitmaps(List<Bitmap> mBitmaps) {
+    this.mBitmaps = mBitmaps;
+  }
+
   @NonNull @Override public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     return new TrimmerViewHolder(mInflater.inflate(R.layout.video_thumb_item_layout, parent, false));
   }

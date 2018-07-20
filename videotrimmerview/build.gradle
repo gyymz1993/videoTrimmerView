@@ -1,5 +1,7 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.novoda.bintray-release'//添加
+//apply plugin: 'com.novoda.bintray-release'//添加
+apply plugin: 'com.github.dcendents.android-maven'
+group='com.github.gyymz1993'
 
 android {
     compileSdkVersion 26
@@ -26,7 +28,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.android.support:recyclerview-v7:26.1.0'
     compile 'com.writingminds:FFmpegAndroid:0.3.2'
@@ -34,13 +36,13 @@ dependencies {
 
 
 //添加
-publish {
-    userOrg ='gyymz1993'  //bintray.com用户名
-    groupId ='com.github.gyymz1993'  //jcenter上的路径
-    artifactId ='GPUVideoPlay'  //项目名称
-    publishVersion = 'v1.0.0'  //版本号
-    desc = 'this is for GPUVideoPlay'//描述，不重要
-    website = 'https://github.com/gyymz1993'//网站，最好有，不重要
-    /*gradlew clean build bintrayUpload -PbintrayUser=gyymz1993 -PbintrayKey=5034d09884878366fbd444d453ff05c290684076 -PdryRun=false*/
-}
+//publish {
+//    userOrg ='gyymz1993'  //bintray.com用户名
+//    groupId ='com.github.gyymz1993'  //jcenter上的路径
+//    artifactId ='videoTrimmerViewlibrary'  //项目名称
+//    publishVersion = 'v1.0.1'  //版本号
+//    desc = 'this is for GPUVideoPlay'//描述，不重要
+//    website = 'https://github.com/gyymz1993'//网站，最好有，不重要
+//    /*gradlew clean build bintrayUpload -PbintrayUser=gyymz1993 -PbintrayKey=5034d09884878366fbd444d453ff05c290684076 -PdryRun=false*/
+//}
 
