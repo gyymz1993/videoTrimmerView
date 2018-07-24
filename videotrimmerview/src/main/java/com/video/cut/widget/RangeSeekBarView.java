@@ -31,7 +31,7 @@ public class RangeSeekBarView extends View {
     private static final int TextPositionY = UnitConverter.dpToPx(7);
     private static final int paddingTop = UnitConverter.dpToPx(10);
     private static final int paddingButtom = UnitConverter.dpToPx(25);
-    private static final int textSize = UnitConverter.dpToPx(10);
+    private static final int textSize = UnitConverter.dpToPx(7);
     private static SimpleDateFormat msFormat = new SimpleDateFormat("m:s");
     private final Paint mVideoTrimTimePaintL = new Paint();
     private final Paint mVideoTrimTimePaintR = new Paint();
@@ -127,7 +127,7 @@ public class RangeSeekBarView extends View {
 
         int width = thumbImageLeft.getWidth();
         int height = thumbImageLeft.getHeight();
-        int newWidth = UnitConverter.dpToPx(16);
+        int newWidth = UnitConverter.dpToPx(14);
         int newHeight = UnitConverter.dpToPx(55);
         float scaleWidth = newWidth * 1.0f / width;
         float scaleHeight = newHeight * 1.0f / height;
@@ -233,42 +233,12 @@ public class RangeSeekBarView extends View {
         drawVideoTrimBitmap(canvas);
     }
 
-//    private void drawVideoTrimTimeText(Canvas canvas) {
-//
-////        DecimalFormat df = new DecimalFormat("#.0");
-////        String leftThumbsTime;
-////        if (mStartPosition == 0) {
-////            leftThumbsTime = 0 + "";
-////        } else {
-////            if (mStartPosition < 1) {
-////                leftThumbsTime = "" + mStartPosition;
-////            } else {
-////                leftThumbsTime = df.format(mStartPosition);
-////            }
-////        }
-////        String rightThumbsTime = df.format(mEndPosition);
-//
-//        String leftThumbsTime = DateUtil.convertSecondsToTime(mStartPosition);
-//        String rightThumbsTime = DateUtil.convertSecondsToTime(mEndPosition);
-////    String leftThumbsTime = DateUtil.convertSecondsToTime(mStartPosition);
-////    String rightThumbsTime = DateUtil.convertSecondsToTime(mEndPosition);
-//        canvas.drawText(leftThumbsTime, normalizedToScreen(normalizedMinValue), TextPositionY, mVideoTrimTimePaintL);
-//        canvas.drawText(rightThumbsTime, normalizedToScreen(normalizedMaxValue), TextPositionY, mVideoTrimTimePaintR);
-//
-//        drawVideoTrimBitmap(canvas);
-//    }
 
     private void drawVideoTrimBitmap(Canvas canvas) {
-//    canvas.drawBitmap(mControllerBitmap, canvas.getWidth() - mControllerWidth
-//            , canvas.getHeight() - mControllerHeight, mVideoTrimTimePaintR);
-//    canvas.drawBitmap(mControllerBitmap, canvas.getWidth() - mControllerWidth
-//            , canvas.getHeight() - mControllerHeight, mVideoTrimTimePaintR);
         canvas.drawBitmap(mControllerBitmap, normalizedToScreen(normalizedMinValue) + thumbHalfWidth - (mControllerWidth / 2)
                 , getHeight() - paddingButtom, mVideoTrimTimePaintL);
         canvas.drawBitmap(mControllerBitmap, normalizedToScreen(normalizedMaxValue) - thumbHalfWidth - (mControllerWidth / 2),
                 getHeight() - paddingButtom, mVideoTrimTimePaintR);
-        //canvas.drawText(leftThumbsTime, normalizedToScreen(normalizedMinValue), TextPositionY, mVideoTrimTimePaintL);
-        //canvas.drawText(rightThumbsTime, normalizedToScreen(normalizedMaxValue), TextPositionY, mVideoTrimTimePaintR);
     }
 
     @Override
@@ -282,7 +252,7 @@ public class RangeSeekBarView extends View {
 
         if (!isEnabled()) return false;
         if (absoluteMaxValuePrim <= mMinShootTime) {
-            Log.e("TAG","absoluteMaxValuePrim"+absoluteMaxValuePrim);
+            Log.e("TAG", "absoluteMaxValuePrim" + absoluteMaxValuePrim);
             return super.onTouchEvent(event);
         }
         int pointerIndex;// 记录点击点的index
@@ -414,20 +384,20 @@ public class RangeSeekBarView extends View {
             float rangeL = normalizedToScreen(normalizedMinValue);
             float rangeR = normalizedToScreen(normalizedMaxValue);
             double min = mMinShootTime / (absoluteMaxValuePrim - absoluteMinValuePrim) * (width - thumbWidth * 2);
-            if (absoluteMaxValuePrim > 5 * 60 * 1000) {//大于5分钟的精确小数四位
-                DecimalFormat df = new DecimalFormat("0.0000");
-                min_width = Double.parseDouble(df.format(min));
-            } else {
-                min_width = Math.round(min + 0.5d);
-            }
+//            if (absoluteMaxValuePrim > 5 * 60 * 1000) {//大于5分钟的精确小数四位
+//                DecimalFormat df = new DecimalFormat("0.0000");
+//                min_width = Double.parseDouble(df.format(min));
+//            } else {
+//                min_width = Math.round(min + 0.5d);
+//            }
+            DecimalFormat df = new DecimalFormat("0.0");
+            min_width = Double.parseDouble(df.format(min));
             if (position == 0) {
                 if (isInThumbRangeLeft(screenCoord, normalizedMinValue, 0.5)) {
                     return normalizedMinValue;
                 }
-
                 float rightPosition = (getWidth() - rangeR) >= 0 ? (getWidth() - rangeR) : 0;
                 double left_length = getValueLength() - (rightPosition + min_width);
-
                 if (current_width > rangeL) {
                     current_width = rangeL + (current_width - rangeL);
                 } else if (current_width <= rangeL) {
@@ -555,8 +525,10 @@ public class RangeSeekBarView extends View {
     }
 
     public void setStartEndTime(long start, long end) {
-        this.mStartPosition = start / 100 * 1.0 / 10;
-        this.mEndPosition = end / 100 * 1.0 / 10;
+        //this.mStartPosition = start / 100 * 1.000 / 10;
+        //this.mEndPosition = end / 100 * 1.000 / 10;
+        this.mStartPosition = Math.ceil(start / 10.0 / 10.0) / 10;
+        this.mEndPosition = Math.ceil(end / 10.0 / 10.0) / 10;
     }
 
     /**

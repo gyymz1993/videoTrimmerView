@@ -4,11 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
+import android.util.Log;
 
 import com.github.hiteshsondhi88.libffmpeg.ExecuteBinaryResponseHandler;
 import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
-import com.qiniu.pili.droid.shortvideo.PLShortVideoTrimmer;
-import com.qiniu.pili.droid.shortvideo.PLVideoSaveListener;
 import com.video.cut.interfaces.SingleCallback;
 import com.video.cut.interfaces.TrimVideoListener;
 
@@ -27,7 +26,6 @@ public class TrimVideoUtil {
     private static final int THUMB_HEIGHT = UnitConverter.dpToPx(50);
     public static long MIN_SHOOT_DURATION = 3000L;// 最小剪辑时间3s
     public static long MAX_SHOOT_DURATION = VIDEO_MAX_TIME * 6000L;//视频最多剪切多长时间10s
-    public static PLShortVideoTrimmer mShortVideoTrimmer;
     public static int count = 0;
     static TrimVideoListener mcallback;
     static android.os.Handler handler = new android.os.Handler();
@@ -55,6 +53,9 @@ public class TrimVideoUtil {
         String start = convertSecondsToTime(startMs / 1000);
         String duration = convertSecondsToTime((endMs - startMs) / 1000);
         long induration = (endMs - startMs) / 1000;
+        if (induration < 3) {
+            duration = convertSecondsToTime(3);
+        }
 
         /** 裁剪视频ffmpeg指令说明：
          * ffmpeg -ss START -t DURATION -i INPUT -vcodec copy -acodec copy OUTPUT
@@ -70,21 +71,19 @@ public class TrimVideoUtil {
          比如把一个5分钟视频剪切到2分钟，剪切后视频能播放的长度是2分钟，但视频显示时长是5分钟。
          看源码命令行是 ffmpeg -ss 0.0 -t 120 " + "-accurate_seek -i " + mPath + " -vcodec copy -acodec copy " + tempVideoPath + " -y",
          后来改成ffmpeg -ss 0.0 -t 120 " + "-accurate_seek -i " + mPath + " -vcodec copy -acodec copy -to 120 " + tempVideoPath + " -y"，后面加了个-to限制输出视频长度就正常了。
-
+         ffmpeg -i input.wav -c:a libfaac -q:a 330 -cutoff 15000 output.m4a
          */
-        //ffmpeg -ss 0.0 -t 120 " + "-accurate_seek -i " + mPath + " -vcodec copy -acodec copy -to 120 " + tempVideoPath + " -y"
-      //  String cmd = "-ss " + start + " -t " + duration + " -i " + inputFile + " -vcodec copy -acodec copy to " + induration + " " + outputFile;
-
-        String cmd = "-ss " + start + " -t " + duration + " -i " + inputFile + " -vcodec copy -acodec copy " + outputFile;
+        String cmd = "-ss " + start + " -i " + inputFile + " -ss 0" + " -t " + duration + " -c copy -map 0 " + outputFile;
+        //  String cmd = "-ss " + start + " -t " + duration + " -i " + inputFile + " -vcodec copy -acodec copy " + outputFile;
         String[] command = cmd.split(" ");
         count = 0;
         handler.post(runnable);
         try {
             // final String tempOutFile = outputFile;
             FFmpeg.getInstance(context).execute(command, new ExecuteBinaryResponseHandler() {
-
                 @Override
                 public void onSuccess(String s) {
+                    Log.e("TAG", s + "----");
                     handler.removeCallbacks(runnable);
                     count = 0;
                     if (callback != null) {
@@ -94,7 +93,6 @@ public class TrimVideoUtil {
 
                 @Override
                 public void onStart() {
-                    //callback.onStartTrim();
                     if (callback != null) {
                         callback.onStartTrim();
                     }
@@ -120,14 +118,12 @@ public class TrimVideoUtil {
         String width = metadataRetriever.extractMetadata(18);
         String height = metadataRetriever.extractMetadata(19);
         String duration = metadataRetriever.extractMetadata(9);
-        //duration = String.valueOf(Double.valueOf(duration).doubleValue() / 1000.0D);
         String angle = metadataRetriever.extractMetadata(24);
         if (angle.equals("90") || angle.equals("270")) {
             String tempWidth = width;
             width = height;
             height = tempWidth;
         }
-
         metadataRetriever.release();
         return new String[]{width, height, duration, angle};
     }
@@ -197,38 +193,6 @@ public class TrimVideoUtil {
             retStr = "" + i;
         }
         return retStr;
-    }
-
-    public static void onDone(final Context context, final String inputFile, final String outputFile, final long startMs, final long endMs, final TrimVideoListener callback) {
-        if (callback != null) {
-            callback.onStartTrim();
-        }
-        mShortVideoTrimmer = new PLShortVideoTrimmer(context, inputFile, outputFile);
-        PLShortVideoTrimmer.TRIM_MODE mode = PLShortVideoTrimmer.TRIM_MODE.ACCURATE;//: PLShortVideoTrimmer.TRIM_MODE.ACCURATE
-        mShortVideoTrimmer.trim(startMs, endMs, mode, new PLVideoSaveListener() {
-            @Override
-            public void onSaveVideoSuccess(String path) {
-                callback.onFinishTrim(path);
-            }
-
-            @Override
-            public void onSaveVideoFailed(final int errorCode) {
-                trim(context, inputFile, outputFile, startMs, endMs, callback);
-            }
-
-            @Override
-            public void onSaveVideoCanceled() {
-                if (callback != null)
-                    callback.onCancel();
-            }
-
-            @Override
-            public void onProgressUpdate(final float percentage) {
-                if (callback != null)
-                    callback.onProgressUpdate(percentage);
-            }
-        });
-        //  mShortVideoTrimmer.cancelTrim();
     }
 
 
