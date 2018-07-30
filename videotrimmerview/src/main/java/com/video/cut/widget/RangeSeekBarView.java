@@ -319,7 +319,6 @@ public class RangeSeekBarView extends View {
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
                 final int index = event.getPointerCount() - 1;
-                // final int index = ev.getActionIndex();
                 mDownMotionX = event.getX(index);
                 mActivePointerId = event.getPointerId(index);
                 invalidate();
@@ -372,11 +371,11 @@ public class RangeSeekBarView extends View {
     }
 
     private double screenToNormalized(float screenCoord, int position) {
-        Log.e(TAG, "screenToNormalized screenCoord : " + screenCoord + "   ==:position:" + position);
+        //Log.e(TAG, "screenToNormalized screenCoord : " + screenCoord + "   ==:position:" + position);
         int width = getWidth();
         if (width <= 2 * padding) {
             // prevent division by zero, simply return 0.
-            Log.e(TAG, "screenToNormalized screenCoord : " + screenCoord + "   ==:position:" + position + "return 0d");
+            //Log.e(TAG, "screenToNormalized screenCoord : " + screenCoord + "   ==:position:" + position + "return 0d");
             return 0d;
         } else {
             isMin = false;
@@ -431,20 +430,15 @@ public class RangeSeekBarView extends View {
                 }
 
                 double paddingRight = getWidth() - current_width;
-
                 if (paddingRight > right_length) {
                     isMin = true;
                     current_width = getWidth() - right_length;
                     paddingRight = right_length;
                 }
-
-                if (paddingRight < thumbWidth * 2 / 3) {
-                    current_width = getWidth();
-                    paddingRight = 0;
-                }
-
                 double resultTime = (paddingRight - padding) / (width - 2 * thumbWidth);
+                Log.e(TAG, "screenToNormalized resultTime : " + resultTime);
                 resultTime = 1 - resultTime;
+                Log.e(TAG, "screenToNormalized resultTime : " + resultTime);
                 normalizedMaxValueTime = Math.min(1d, Math.max(0d, resultTime));
                 double result = (current_width - padding) / (width - 2 * padding);
                 Log.e(TAG, "screenToNormalized result : " + result);
@@ -547,14 +541,16 @@ public class RangeSeekBarView extends View {
 
 
     public void setNormalizedMinValue(double value) {
-        Log.e("TAG", "setNormalizedMinValue value" + value);
+        //Log.e("TAG", "setNormalizedMinValue value" + value);
         normalizedMinValue = Math.max(0d, Math.min(1d, Math.min(value, normalizedMaxValue)));
         Log.e("TAG", "setNormalizedMinValue setNormalizedMinValue" + normalizedMinValue);
         invalidate();// 重新绘制此view
     }
 
     public void setNormalizedMaxValue(double value) {
+        //Log.e("TAG", "setNormalizedMinValue  value" + value);
         normalizedMaxValue = Math.max(0d, Math.min(1d, Math.max(value, normalizedMinValue)));
+        Log.e("TAG", "setNormalizedMinValue setNormalizedMaxValue" + normalizedMinValue);
         invalidate();// 重新绘制此view
     }
 

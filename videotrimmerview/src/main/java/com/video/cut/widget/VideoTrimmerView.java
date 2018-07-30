@@ -317,11 +317,6 @@ public class VideoTrimmerView extends FrameLayout implements IVideoTrimmerView {
     private void videoCompleted() {
         seekTo(mLeftProgressPos);
         setPlayPauseViewIcon(false);
-        //监听视频播放完的代码  相当于循环播放
-        //mVideoView.start();
-//        if (onVideoViewListener != null) {
-//            onVideoViewListener.onCompleted();
-//        }
     }
 
     private void onVideoReset() {
@@ -329,13 +324,6 @@ public class VideoTrimmerView extends FrameLayout implements IVideoTrimmerView {
         setPlayPauseViewIcon(false);
     }
 
-//    public OnVideoViewListener getOnVideoViewListener() {
-//        return onVideoViewListener;
-//    }
-//
-//    public void setOnVideoViewListener(OnVideoViewListener onVideoViewListener) {
-//        this.onVideoViewListener = onVideoViewListener;
-//    }
 
     private void playVideoOrPause() {
         mRedProgressBarPos = mVideoView.getCurrentPosition();
@@ -348,9 +336,6 @@ public class VideoTrimmerView extends FrameLayout implements IVideoTrimmerView {
         }
         setPlayPauseViewIcon(mVideoView.isPlaying());
         videoLoading.setVisibility(GONE);
-//        if (onVideoViewListener != null) {
-//            onVideoViewListener.onStart();
-//        }
     }
 
     public void onVideoPlay() {
@@ -477,7 +462,7 @@ public class VideoTrimmerView extends FrameLayout implements IVideoTrimmerView {
             public void onAnimationUpdate(ValueAnimator animation) {
                 params.leftMargin = (int) animation.getAnimatedValue();
                 mRedProgressIcon.setLayoutParams(params);
-                Log.d(TAG, "----onAnimationUpdate--->>>>>>>" + mRedProgressBarPos);
+               // Log.d(TAG, "----onAnimationUpdate--->>>>>>>" + mRedProgressBarPos);
             }
         });
         mRedProgressAnimator.start();
@@ -493,7 +478,7 @@ public class VideoTrimmerView extends FrameLayout implements IVideoTrimmerView {
 
     private void updateVideoProgress() {
         long currentPosition = mVideoView.getCurrentPosition();
-        Log.d(TAG, "updateVideoProgress currentPosition = " + currentPosition);
+      //  Log.d(TAG, "updateVideoProgress currentPosition = " + currentPosition);
         if (currentPosition >= (mRightProgressPos)) {
             mRedProgressBarPos = mLeftProgressPos;
             pauseRedProgressAnimation();
@@ -509,6 +494,7 @@ public class VideoTrimmerView extends FrameLayout implements IVideoTrimmerView {
     @Override
     public void onDestroy() {
         mOnTrimVideoListener = null;
+        pauseRedProgressAnimation();
         BackgroundExecutor.cancelAll("", true);
         UiThreadExecutor.cancelAll("");
     }

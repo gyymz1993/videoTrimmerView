@@ -24,13 +24,12 @@
 
 
             <ProgressBar
-                android:visibility="gone"
                 android:id="@+id/video_loading"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_centerInParent="true"
                 android:indeterminateDrawable="@drawable/dialog_loading"
-                />
+                android:visibility="gone" />
         </LinearLayout>
 
 
@@ -72,13 +71,22 @@
                 android:layout_marginBottom="35dp"
                 tools:background="@android:color/holo_green_light" />
 
+
+            <!--遮挡滑出去的recyleview-->
+            <View
+                android:layout_width="35dp"
+                android:layout_height="50dp"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="35dp"
+                android:background="#1f1f27" />
+
             <ImageView
                 android:id="@+id/positionIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
                 android:layout_gravity="bottom"
-                android:layout_marginLeft="35dp"
                 android:layout_marginBottom="35dp"
+                android:layout_marginLeft="35dp"
                 android:contentDescription="@null"
                 android:src="@drawable/icon_seek_bar"
                 android:visibility="gone" />
