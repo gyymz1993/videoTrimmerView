@@ -8,10 +8,14 @@ import android.util.Log;
 
 import com.github.hiteshsondhi88.libffmpeg.ExecuteBinaryResponseHandler;
 import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
+import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
+import com.video.cut.interfaces.CompressVideoListener;
 import com.video.cut.interfaces.SingleCallback;
 import com.video.cut.interfaces.TrimVideoListener;
 
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class TrimVideoUtil {
@@ -34,7 +38,7 @@ public class TrimVideoUtil {
         public void run() {
             count++;
             handler.postDelayed(this, 1000);
-            if (count > 10) {
+            if (count > 100) {
                 handler.removeCallbacks(runnable);
                 count = 0;
                 if (mcallback != null) {
@@ -44,6 +48,10 @@ public class TrimVideoUtil {
             }
         }
     };
+    static Timer timer;
+    static int cnt = 0;
+    static TimerTask timerTask;
+    static CompressVideoListener compressVideoListener;
 
     public static void trim(Context context, String inputFile, final String outputFile, long startMs, long endMs, final TrimVideoListener callback) {
         //  final String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
@@ -52,11 +60,12 @@ public class TrimVideoUtil {
         mcallback = callback;
         String start = convertSecondsToTime(startMs / 1000);
         String duration = convertSecondsToTime((endMs - startMs) / 1000);
-        long induration = (endMs - startMs) / 1000;
-        if (induration < 3) {
-            duration = convertSecondsToTime(3);
-        }
 
+        double startTime = startMs / 10.0 / 10.0 / 10;
+        double induration = (endMs - startMs) / 10.0 / 10.0 / 10;
+        if (induration < 3.0) {
+            induration = 3.0;
+        }
         /** 裁剪视频ffmpeg指令说明：
          * ffmpeg -ss START -t DURATION -i INPUT -vcodec copy -acodec copy OUTPUT
          -ss 开始时间，如： 00:00:20，表示从20秒开始；
@@ -73,7 +82,12 @@ public class TrimVideoUtil {
          后来改成ffmpeg -ss 0.0 -t 120 " + "-accurate_seek -i " + mPath + " -vcodec copy -acodec copy -to 120 " + tempVideoPath + " -y"，后面加了个-to限制输出视频长度就正常了。
          ffmpeg -i input.wav -c:a libfaac -q:a 330 -cutoff 15000 output.m4a
          */
-        String cmd = "-ss " + start + " -i " + inputFile + " -ss 0" + " -t " + duration + " -c copy -map 0 " + outputFile;
+        /**
+         * 会减少几秒
+         */
+        //String cmd = "-ss " + start + " -i " + inputFile + " -ss 0" + " -t " + duration + " -c copy -map 0 " + outputFile;
+        String cmd = "-i " + inputFile + " -ss " + startTime + " -t " + induration + " -c copy -map 0 " + outputFile;
+        // ffmpeg -i source.mp4 -ss 577.92 -t 11.98 -c copy -map 0 clip1.mp4
         //  String cmd = "-ss " + start + " -t " + duration + " -i " + inputFile + " -vcodec copy -acodec copy " + outputFile;
         String[] command = cmd.split(" ");
         count = 0;
@@ -97,6 +111,18 @@ public class TrimVideoUtil {
                         callback.onStartTrim();
                     }
                 }
+
+                @Override
+                public void onFailure(String message) {
+                    super.onFailure(message);
+                    Log.e("TAG", message + "----");
+                }
+
+                @Override
+                public void onProgress(String message) {
+                    super.onProgress(message);
+                    Log.e("TAG", message + "----");
+                }
             });
         } catch (Exception e) {
             e.printStackTrace();
@@ -105,6 +131,65 @@ public class TrimVideoUtil {
             if (callback != null) {
                 callback.onFailed();
             }
+        }
+    }
+
+    public static void compress(Context context, String inputFile, String outputFile, final CompressVideoListener callback) {
+        compressVideoListener = callback;
+        if (timer == null) {
+            timer = new Timer();
+        }
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        cnt++;
+                        if (cnt > 100) {
+                            if (compressVideoListener != null) {
+                                compressVideoListener.onFailure("");
+                            }
+                            timer.cancel();
+                            timerTask.cancel();
+                            timer = null;
+                        }
+                    }
+                });
+            }
+        };
+        //timer.schedule(timerTask, 0, 1000);
+        // String cmd = "-threads 2 -y -i " + inputFile + " -strict -2 -vcodec libx264 -preset ultrafast -crf 28 -acodec copy -ac 2 " + outputFile;
+        String cmd = " -threads 4 -i " + inputFile + " -r 29.97 -vcodec libx264 -s 480x272 -flags +loop -cmp chroma -deblockalpha 0 -deblockbeta 0 -crf 28 -bt 256k -refs 1 -coder 0 -me umh -me_range 16 -subq 5 -partitions parti4x4+parti8x8+partp8x8 -g 250 -keyint_min 25 -level 30 -qmin 10 -qmax 51 -trellis 2 -sc_threshold 40 -i_qfactor 0.71 -acodec libfaac -ab 128k -ar 48000 -ac 2 " + outputFile;
+        String[] command = cmd.split(" ");
+        try {
+            FFmpeg.getInstance(context).execute(command, new ExecuteBinaryResponseHandler() {
+                @Override
+                public void onFailure(String msg) {
+                    Log.e("TAG", msg + "----");
+                    timer.cancel();
+                    timerTask.cancel();
+                    timer = null;
+                    callback.onFailure("Compress video failed!");
+                    callback.onFinish();
+                }
+
+                @Override
+                public void onSuccess(String msg) {
+                    Log.e("TAG", msg + "----");
+                    timer.cancel();
+                    timerTask.cancel();
+                    timer = null;
+                    callback.onSuccess("Compress video successed!");
+                    callback.onFinish();
+                }
+            });
+        } catch (FFmpegCommandAlreadyRunningException e) {
+            e.printStackTrace();
+            callback.onFailure("Compress video failed!");
+            timer.cancel();
+            timerTask.cancel();
+            timer = null;
         }
     }
 
