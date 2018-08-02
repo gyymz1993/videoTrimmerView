@@ -74,11 +74,15 @@ public class VideoTrimmerView extends FrameLayout implements IVideoTrimmerView {
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
             Log.d(TAG, "newState = " + newState);
-            mVideoView.pause();
-            if (newState == RecyclerView.SCROLL_STATE_IDLE && isMoveToStart) {
-                seekTo(mRangeSeekBarView.getSelectedMinValue());
-                mRangeSeekBarView.setStartEndTime(mRangeSeekBarView.getSelectedMinValue(), mRangeSeekBarView.getSelectedMaxValue());
-                mRangeSeekBarView.invalidate();
+            // mVideoView.pause();
+//            if (newState == RecyclerView.SCROLL_STATE_IDLE && isMoveToStart) {
+//               // seekTo(mRangeSeekBarView.getSelectedMinValue());
+//               // mRangeSeekBarView.setStartEndTime(mRangeSeekBarView.getSelectedMinValue(), mRangeSeekBarView.getSelectedMaxValue());
+//               // mRangeSeekBarView.invalidate();
+//            }
+
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                seekTo(mLeftProgressPos);
             }
         }
 
@@ -89,6 +93,9 @@ public class VideoTrimmerView extends FrameLayout implements IVideoTrimmerView {
             Log.d(TAG, "onScrolled >>>> scrollX = " + scrollX);
             //达不到滑动的距离
             if (Math.abs(lastScrollX - scrollX) < 0) {
+                return;
+            }
+            if (scrollX == RECYCLER_VIEW_PADDING) {
                 return;
             }
             //初始状态,why ? 因为默认的时候有35dp的空白！
@@ -102,13 +109,13 @@ public class VideoTrimmerView extends FrameLayout implements IVideoTrimmerView {
             }
             mLeftProgressPos = mRangeSeekBarView.getSelectedMinValue() + scrollPos;
             mRightProgressPos = mRangeSeekBarView.getSelectedMaxValue() + scrollPos;
-            if (mVideoView.isPlaying()) {
-                mVideoView.pause();
-                setPlayPauseViewIcon(false);
-            }
+//            if (mVideoView.isPlaying()) {
+//                mVideoView.pause();
+//                setPlayPauseViewIcon(false);
+//            }
             mRedProgressIcon.setVisibility(GONE);
             mRedProgressBarPos = mLeftProgressPos;
-            seekTo(mLeftProgressPos);
+            //seekTo(mLeftProgressPos);
             Log.e(TAG, "onScrolled >>>> mLeftProgressPos = " + mLeftProgressPos);
             Log.e(TAG, "onScrolled >>>> mRightProgressPos = " + mRightProgressPos);
             mRangeSeekBarView.setStartEndTime(mLeftProgressPos, mRightProgressPos);
@@ -233,7 +240,6 @@ public class VideoTrimmerView extends FrameLayout implements IVideoTrimmerView {
             mVideoView.setVideoPath(videoURI);
             mVideoView.requestFocus();
             mVideoShootTipTv.setText(String.format(mContext.getResources().getString(R.string.video_shoot_tip), TrimVideoUtil.VIDEO_MAX_TIME));
-            mVideoView.start();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -242,6 +248,12 @@ public class VideoTrimmerView extends FrameLayout implements IVideoTrimmerView {
                     startShootVideoThumbs(mContext, mSourceUri, mThumbsTotalCount, 0, mDuration);
                 }
             }, 500);
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mVideoView.start();
+                }
+            }, 1000);
 
         } catch (Exception e) {
 
@@ -367,7 +379,7 @@ public class VideoTrimmerView extends FrameLayout implements IVideoTrimmerView {
         findViewById(R.id.finishBtn).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-               // onSaveClicked();
+                // onSaveClicked();
             }
         });
         mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -402,7 +414,7 @@ public class VideoTrimmerView extends FrameLayout implements IVideoTrimmerView {
         }
         mVideoView.pause();
         mOnTrimVideoListener.onStartTrim();
-        TrimVideoUtil.trim(mContext, mSourceUri, outFile, mLeftProgressPos, mRightProgressPos, mOnTrimVideoListener);
+        TrimVideoUtil.executeCutVideoCommand(mSourceUri, outFile, mLeftProgressPos, mRightProgressPos, mOnTrimVideoListener);
     }
 
 
@@ -462,7 +474,7 @@ public class VideoTrimmerView extends FrameLayout implements IVideoTrimmerView {
             public void onAnimationUpdate(ValueAnimator animation) {
                 params.leftMargin = (int) animation.getAnimatedValue();
                 mRedProgressIcon.setLayoutParams(params);
-               // Log.d(TAG, "----onAnimationUpdate--->>>>>>>" + mRedProgressBarPos);
+                // Log.d(TAG, "----onAnimationUpdate--->>>>>>>" + mRedProgressBarPos);
             }
         });
         mRedProgressAnimator.start();
@@ -478,7 +490,7 @@ public class VideoTrimmerView extends FrameLayout implements IVideoTrimmerView {
 
     private void updateVideoProgress() {
         long currentPosition = mVideoView.getCurrentPosition();
-      //  Log.d(TAG, "updateVideoProgress currentPosition = " + currentPosition);
+        //  Log.d(TAG, "updateVideoProgress currentPosition = " + currentPosition);
         if (currentPosition >= (mRightProgressPos)) {
             mRedProgressBarPos = mLeftProgressPos;
             pauseRedProgressAnimation();
