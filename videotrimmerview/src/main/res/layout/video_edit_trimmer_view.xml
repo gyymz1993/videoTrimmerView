@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1f1f27"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/layout_surface_view"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:gravity="center">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <VideoView
+                android:id="@+id/video_loader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true" />
+
+
+            <ProgressBar
+                android:id="@+id/video_loading"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_centerInParent="true"
+                android:indeterminateDrawable="@drawable/dialog_loading"
+                android:visibility="gone" />
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="45dp"
+        android:layout_weight="1"
+        android:background="#1f1f27"
+        android:gravity="center_vertical">
+
+
+        <FrameLayout
+            android:id="@+id/video_frames_layout"
+            android:layout_width="match_parent"
+            android:layout_height="95dp"
+            android:layout_below="@+id/video_shoot_tip"
+            android:layout_marginTop="15dp">
+
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/video_frames_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="35dp"
+                />
+
+
+            <RelativeLayout
+                android:layout_marginTop="-15dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_centerInParent="true"
+                    android:id="@+id/id_ig_view_line"
+                    android:layout_width="5px"
+                    android:layout_gravity="center"
+                    android:background="@color/line_color"
+                    android:orientation="vertical"
+                    android:layout_height="70dp"
+                    />
+
+                <TextView
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="0:0"
+                    android:id="@+id/id_tv_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    />
+            </RelativeLayout>
+        </FrameLayout>
+    </RelativeLayout>
+</LinearLayout>
