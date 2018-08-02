@@ -28,10 +28,11 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.android.support:recyclerview-v7:26.1.0'
-    compile 'com.writingminds:FFmpegAndroid:0.3.2'
+    //compile 'com.writingminds:FFmpegAndroid:0.3.2'
+    compile 'com.github.yangjie10930:EpMedia:v0.9.5'
 }
 
 
