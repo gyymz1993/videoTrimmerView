@@ -22,13 +22,15 @@ import java.util.List;
 
 public class VideoEditTrimmerAdapter extends RecyclerView.Adapter<VideoEditTrimmerAdapter.TrimmerViewHolder> {
 
-    private List<Bitmap> mBitmaps = new ArrayList<>();
-    private LayoutInflater mInflater;
-    private Context context;
     //设置三种不同Item类型,分别是头部,item,尾部
     public static final int ITME_TYPE_HEADER = 1;
     public static final int ITME_TYPE_CONTENT = 2;
     public static final int ITME_TYPE_BOTTOM = 3;
+    private List<Bitmap> mBitmaps = new ArrayList<>();
+    private LayoutInflater mInflater;
+    private Context context;
+    private View VIEW_FOOTER;
+    private View VIEW_HEADER;
 
     public VideoEditTrimmerAdapter(Context context) {
         this.context = context;
@@ -58,18 +60,16 @@ public class VideoEditTrimmerAdapter extends RecyclerView.Adapter<VideoEditTrimm
         return new TrimmerViewHolder(view);
     }
 
-
     @Override
     public void onBindViewHolder(@NonNull TrimmerViewHolder holder, int position) {
         if (!isHeaderView(position) && !isFooterView(position)) {
             if (haveHeaderView()) position--;
             holder.thumbImageView.setImageBitmap(mBitmaps.get(position));
-            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) holder .thumbImageView.getLayoutParams();
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) holder.thumbImageView.getLayoutParams();
             layoutParams.width = (int) Math.ceil(DeviceUtil.getDeviceWidth() / TrimVideoUtil.MAX_COUNT_RANGE);
             holder.thumbImageView.setLayoutParams(layoutParams);
         }
     }
-
 
     @Override
     public int getItemViewType(int position) {
@@ -81,8 +81,6 @@ public class VideoEditTrimmerAdapter extends RecyclerView.Adapter<VideoEditTrimm
             return ITME_TYPE_CONTENT;
         }
     }
-
-
 
     @Override
     public int getItemCount() {
@@ -96,23 +94,10 @@ public class VideoEditTrimmerAdapter extends RecyclerView.Adapter<VideoEditTrimm
         return count;
     }
 
-
-
     public void addBitmaps(Bitmap bitmap) {
         mBitmaps.add(bitmap);
         notifyDataSetChanged();
     }
-
-    public  class TrimmerViewHolder extends RecyclerView.ViewHolder {
-        public ImageView thumbImageView;
-        TrimmerViewHolder(View itemView) {
-            super(itemView);
-            thumbImageView = itemView.findViewById(R.id.thumb);
-        }
-    }
-
-    private View VIEW_FOOTER;
-    private View VIEW_HEADER;
 
     private boolean haveHeaderView() {
         return VIEW_HEADER != null;
@@ -129,7 +114,6 @@ public class VideoEditTrimmerAdapter extends RecyclerView.Adapter<VideoEditTrimm
     private boolean isFooterView(int position) {
         return haveFooterView() && position == getItemCount() - 1;
     }
-
 
     public void addHeaderView() {
         if (haveHeaderView()) {
@@ -150,24 +134,31 @@ public class VideoEditTrimmerAdapter extends RecyclerView.Adapter<VideoEditTrimm
         }
     }
 
-
-
     protected View getFootView() {
-        VIEW_FOOTER = LayoutInflater.from(context).inflate(R.layout.video_edit_item_place,null);
+        VIEW_FOOTER = LayoutInflater.from(context).inflate(R.layout.video_edit_item_place, null);
         TextView textView = VIEW_FOOTER.findViewById(R.id.id_ry_place);
         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) textView.getLayoutParams();
-        layoutParams.width = UnitConverter.getDisplayMetrics().widthPixels/2;
+        layoutParams.width = UnitConverter.getDisplayMetrics().widthPixels / 2 -  UnitConverter.dpToPx(35);
         textView.setLayoutParams(layoutParams);
         return VIEW_FOOTER;
     }
 
     protected View getHeadView() {
-         VIEW_HEADER = LayoutInflater.from(context).inflate(R.layout.video_edit_item_place,null);
+        VIEW_HEADER = LayoutInflater.from(context).inflate(R.layout.video_edit_item_place, null);
         TextView textView = VIEW_HEADER.findViewById(R.id.id_ry_place);
         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) textView.getLayoutParams();
-        layoutParams.width = UnitConverter.getDisplayMetrics().widthPixels / 2;
+        layoutParams.width = UnitConverter.getDisplayMetrics().widthPixels / 2 - UnitConverter.dpToPx(35);
         textView.setLayoutParams(layoutParams);
         return VIEW_HEADER;
+    }
+
+    public class TrimmerViewHolder extends RecyclerView.ViewHolder {
+        public ImageView thumbImageView;
+
+        TrimmerViewHolder(View itemView) {
+            super(itemView);
+            thumbImageView = itemView.findViewById(R.id.thumb);
+        }
     }
 
 }
